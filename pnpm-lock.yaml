@@ -5,9 +5,27 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@lexical/code':
+    specifier: ^0.17.0
+    version: 0.17.0
+  '@lexical/link':
+    specifier: ^0.17.0
+    version: 0.17.0
+  '@lexical/list':
+    specifier: ^0.17.0
+    version: 0.17.0
+  '@lexical/mark':
+    specifier: ^0.17.0
+    version: 0.17.0
+  '@lexical/overflow':
+    specifier: ^0.17.0
+    version: 0.17.0
   '@lexical/react':
     specifier: ^0.17.0
     version: 0.17.0(react-dom@18.3.1)(react@18.3.1)(yjs@13.6.18)
+  '@lexical/table':
+    specifier: ^0.17.0
+    version: 0.17.0
   '@lexical/utils':
     specifier: ^0.17.0
     version: 0.17.0
@@ -35,6 +53,9 @@ dependencies:
   lexical:
     specifier: ^0.17.0
     version: 0.17.0
+  prismjs:
+    specifier: ^1.29.0
+    version: 1.29.0
   react:
     specifier: ^18.3.1
     version: 18.3.1
@@ -70,6 +91,9 @@ devDependencies:
   '@types/node':
     specifier: ^22.1.0
     version: 22.1.0
+  '@types/prismjs':
+    specifier: ^1.26.4
+    version: 1.26.4
   '@types/react':
     specifier: ^18.3.3
     version: 18.3.3
@@ -2634,6 +2658,10 @@ packages:
     resolution: {integrity: sha512-AOmuRF0R2/5j1knA3c6G3HOk523Ga+l+ZXltX8SF1+5oqcXijjfTd8fY3XRZqSihEu9XhtQnKYLmkFaoxgsJHw==}
     dependencies:
       undici-types: 6.13.0
+    dev: true
+
+  /@types/prismjs@1.26.4:
+    resolution: {integrity: sha512-rlAnzkW2sZOjbqZ743IHUhFcvzaGbqijwOu8QZnZCjfQzBqFE3s4lOTJEsxikImav9uzz/42I+O7YUs1mWgMlg==}
     dev: true
 
   /@types/prop-types@15.7.12:
