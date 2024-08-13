@@ -1,5 +1,3 @@
-import fs from "fs/promises";
-
 export async function saveMarkdownHandler({
   body,
   title,
@@ -17,9 +15,11 @@ export async function saveMarkdownHandler({
   const ipAddress = "10.0.0.216";
   const prefix = "http://";
   const port = "3000";
+  const apiRoute = "/save-post";
+  const fetchUrl = prefix + ipAddress + ":" + port + apiRoute;
   // send the file to your server and return
   // the URL of the uploaded image in the response
-  const response = await fetch(prefix + ipAddress + ":" + port + "/save-post", {
+  const response = await fetch(fetchUrl, {
     method: "POST",
     body: formData,
     // headers: {

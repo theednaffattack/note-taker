@@ -27,6 +27,7 @@ import { useRef } from "react";
 import fm from "front-matter";
 import slugify from "slugify";
 
+import { AlertProps } from "./alert";
 import { imageUploadHandler } from "./image-upload-handler";
 import { saveMarkdownHandler } from "./save-markdown-handler";
 
@@ -36,6 +37,7 @@ export function Editor() {
 
   return (
     <>
+      <h1 className="text-3xl font-bold underline">Hello world!</h1>
       <button onClick={() => ref.current?.setMarkdown("new markdown")}>
         Set new markdown
       </button>
@@ -61,19 +63,34 @@ export function Editor() {
           let data = ref.current?.getMarkdown();
 
           const parsedContent = fm<{ title: string }>(data);
-          const slug = slugify(parsedContent.attributes.title.toLowerCase());
-          const title = parsedContent.attributes.title;
-          const content = parsedContent.body;
-          const what = await saveMarkdownHandler({
-            body: data,
-            title,
-            slug: slug,
-          });
-          console.log("VIEW RESPONSE", what);
+          console.log("WHAT IS PARSED CONTENT", parsedContent);
+
+          let title;
+          // Make sure the title property is present
+          if (Object.keys(parsedContent.attributes).length === 0) {
+            const missingTitleAlert: AlertProps = {
+              id: "alert-" + Date.now(),
+              message: "Please add title to post.",
+              severity: "warning",
+              timeout: 2000,
+              handleDismiss: null,
+            };
+            // setAlerts((prevState) => [...prevState, missingTitleAlert]);
+          } else {
+            title = parsedContent.attributes.title;
+            const slug = slugify(title.toLowerCase());
+
+            await saveMarkdownHandler({
+              body: data,
+              title,
+              slug: slug,
+            });
+          }
         }}
       >
         Save markdown
       </button>
+
       <MDXEditor
         ref={ref}
         markdown={markdown}
