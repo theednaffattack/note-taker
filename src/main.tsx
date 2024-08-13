@@ -1,6 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+// import Prism from "prismjs/components/prism-core";
+import Prism from "prismjs";
+
+// Need this to fix the Lexical / Vite Prisma issue
+// found here: https://github.com/remix-run/remix/discussions/8182#discussioncomment-9220264
+if (typeof globalThis.Prism === "undefined") {
+  globalThis.Prism = Prism;
+}
+
 import App from "./App.tsx";
 import Contact from "./contact.tsx";
 import ErrorPage from "./error-page.tsx";
