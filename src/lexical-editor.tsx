@@ -125,6 +125,9 @@ export function LexicalEditor() {
   // }
   return (
     <div className="editor-shell">
+      <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
+        Lexical Editor
+      </h1>
       {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
       <div
         className={`editor-container ${showTreeView ? "tree-view" : ""} ${
@@ -132,9 +135,6 @@ export function LexicalEditor() {
         }`}
       >
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
-        <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
-          Lexical Editor
-        </h1>
         <LexicalComposer initialConfig={initialConfig}>
           <SharedHistoryContext>
             <TableContext>
