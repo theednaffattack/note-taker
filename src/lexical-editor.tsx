@@ -71,6 +71,7 @@ import { ImageNode } from "./nodes/ImageNode.tsx";
 import { TableContext } from "./plugins/table-plugin.tsx";
 import theme from "./themes/playground-editor-theme.tsx";
 import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
+import { Button } from "./components/ui/button.tsx";
 
 const placeholder = "Enter some rich text...";
 
@@ -131,8 +132,13 @@ export function LexicalEditor() {
       <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
         Lexical Editor
       </h1>
-      <button type="button">Save Markdown</button>
-      <button type="button">Load Markdown</button>
+
+      <Button type="button" variant="outline">
+        Save Markdown
+      </Button>
+      <Button type="button" variant="outline">
+        Load Markdown
+      </Button>
       {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
       <div
       // className={`editor-container ${showTreeView ? "tree-view" : ""} ${
