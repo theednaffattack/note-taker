@@ -17,6 +17,8 @@ import "./index.css";
 import { Ocr } from "./ocr.tsx";
 import Root from "./routes/root.tsx";
 import { LexicalEditor } from "./lexical-editor.tsx";
+import { FlashMessageContext } from "./context/flash-message-context.tsx";
+import { SettingsContext } from "./context/settings-context.tsx";
 
 const router = createBrowserRouter([
   {
@@ -38,7 +40,13 @@ const router = createBrowserRouter([
       },
       {
         path: "/lexical",
-        element: <LexicalEditor />,
+        element: (
+          <SettingsContext>
+            <FlashMessageContext>
+              <LexicalEditor />
+            </FlashMessageContext>
+          </SettingsContext>
+        ),
       },
     ],
   },
