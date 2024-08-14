@@ -17,7 +17,7 @@ type Props = {
   placeholder: string;
 };
 
-export default function LexicalContentEditable({
+export function LexicalContentEditable({
   className,
   placeholder,
   placeholderClassName,

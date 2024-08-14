@@ -1,7 +1,7 @@
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { LexicalContentEditable as ContentEditable } from "./ui/content-editable.tsx";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -70,16 +70,19 @@ import {
 import { ImageNode } from "./nodes/ImageNode.tsx";
 import { TableContext } from "./plugins/table-plugin.tsx";
 import theme from "./themes/playground-editor-theme.tsx";
+import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
 
 const placeholder = "Enter some rich text...";
 
 function onError(err: unknown) {
   console.error(err);
 }
+const markdown = `# Hello World!\n\nEddie's first test!`;
 
 export function LexicalEditor() {
   const editorRef = useRef(null);
   const initialConfig = {
+    editorState: () => $convertFromMarkdownString(markdown, TRANSFORMERS),
     namespace: "Note Taker",
     theme,
     onError,
@@ -128,35 +131,39 @@ export function LexicalEditor() {
       <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
         Lexical Editor
       </h1>
+      <button type="button">Save Markdown</button>
+      <button type="button">Load Markdown</button>
       {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
       <div
-        className={`editor-container ${showTreeView ? "tree-view" : ""} ${
-          !isRichText ? "plain-text" : ""
-        }`}
+      // className={`editor-container ${showTreeView ? "tree-view" : ""} ${
+      //   !isRichText ? "plain-text" : ""
+      // }`}
       >
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <LexicalComposer initialConfig={initialConfig}>
           <SharedHistoryContext>
             <TableContext>
               <SharedAutocompleteContext>
+                {isRichText && (
+                  <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+                )}
                 <div
                   className={`editor-container ${
                     showTreeView ? "tree-view" : ""
                   } ${!isRichText ? "plain-text" : ""}`}
                 >
-                  <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
                   <div className="editor-inner">
                     <RichTextPlugin
                       contentEditable={
-                        <ContentEditable
-                          className="editor-scroller"
-                          aria-placeholder={placeholder}
-                          placeholder={
-                            <div className="editor-placeholder">
-                              {placeholder}
-                            </div>
-                          }
-                        />
+                        <div className="editor-scroller">
+                          <div className="editor" ref={editorRef}>
+                            <ContentEditable
+                              className="ContentEditable__root"
+                              aria-placeholder={placeholder}
+                              placeholder={placeholder}
+                            />
+                          </div>
+                        </div>
                       }
                       ErrorBoundary={LexicalErrorBoundary}
                     />
