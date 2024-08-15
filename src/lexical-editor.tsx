@@ -1,18 +1,19 @@
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { LexicalContentEditable as ContentEditable } from "./ui/content-editable.tsx";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import type { Klass, LexicalNode } from "lexical";
+import type {
+  Klass,
+  LexicalEditor as LexicalEditorType,
+  LexicalNode,
+} from "lexical";
 import { useRef, useState } from "react";
+import { LexicalContentEditable as ContentEditable } from "./ui/content-editable.tsx";
 // import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
-import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 // import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
 import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
-import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 // import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
@@ -60,7 +61,12 @@ import { CollapsibleContainerNode } from "./plugins/collapsible-plugin/collapsib
 import { CollapsibleContentNode } from "./plugins/collapsible-plugin/collapsible-content-node.ts";
 import { CollapsibleTitleNode } from "./plugins/collapsible-plugin/collapsible-title-node.ts";
 
+import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
 import { CharacterLimitPlugin } from "@lexical/react/LexicalCharacterLimitPlugin";
+import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
+import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
+import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
+import { Button } from "./components/ui/button.tsx";
 import { useSettings } from "./context/settings-context.tsx";
 import { SharedAutocompleteContext } from "./context/shared-auto-complete.tsx";
 import {
@@ -68,28 +74,23 @@ import {
   useSharedHistoryContext,
 } from "./context/shared-history-context.tsx";
 import { ImageNode } from "./nodes/ImageNode.tsx";
+import EquationsPlugin from "./plugins/EquationsPlugin/index.tsx";
+import ExcalidrawPlugin from "./plugins/ExcalidrawPlugin/index.ts";
+import FigmaPlugin from "./plugins/FigmaPlugin/index.tsx";
+import ImagesPlugin from "./plugins/ImagesPlugin/index.tsx";
+import InlineImagePlugin from "./plugins/InlineImagePlugin/index.tsx";
+import PollPlugin from "./plugins/PollPlugin/index.tsx";
+import TabFocusPlugin from "./plugins/TabFocusPlugin/index.tsx";
 import { TableContext } from "./plugins/table-plugin.tsx";
-import theme from "./themes/playground-editor-theme.tsx";
-import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
-import { Button } from "./components/ui/button.tsx";
+import TableCellResizer from "./plugins/TableCellResizer/index.tsx";
+import TableHoverActionsPlugin from "./plugins/TableHoverActionsPlugin/index.tsx";
+import TwitterPlugin from "./plugins/TwitterPlugin/index.ts";
+import YouTubePlugin from "./plugins/YouTubePlugin/index.ts";
 
 const placeholder = "Enter some rich text...";
 
-function onError(err: unknown) {
-  console.error(err);
-}
-const markdown = `# Hello World!\n\nEddie's first test!`;
-
 export function LexicalEditor() {
-  const editorRef = useRef(null);
-  const initialConfig = {
-    editorState: () => $convertFromMarkdownString(markdown, TRANSFORMERS),
-    namespace: "Note Taker",
-    theme,
-    onError,
-    nodes: [...nodes],
-  };
-
+  const editorRef = useRef<LexicalEditorType>(null);
   const { historyState } = useSharedHistoryContext();
   const {
     settings: {
@@ -99,7 +100,7 @@ export function LexicalEditor() {
       isCharLimit,
       isCharLimitUtf8,
       isRichText,
-      showTreeView,
+      // showTreeView,
       showTableOfContents,
       shouldUseLexicalContextMenu,
       shouldPreserveNewLinesInMarkdown,
@@ -107,7 +108,7 @@ export function LexicalEditor() {
       tableCellBackgroundColor,
     },
   } = useSettings();
-  // const isEditable = useLexicalEditable();
+  const isEditable = useLexicalEditable();
   const placeholder = isCollab
     ? "Enter some collaborative rich text..."
     : isRichText
@@ -120,6 +121,8 @@ export function LexicalEditor() {
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
   const [_editorState, setEditorState] = useState<string>("");
+
+  const [showTreeView, setShowTreeView] = useState(true);
 
   // function onChange(editorState: EditorState) {
   //   // Call toJSON on the EditorState object, which produces a serialization safe string
@@ -139,6 +142,32 @@ export function LexicalEditor() {
       <Button type="button" variant="outline">
         Load Markdown
       </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={(evt) => {
+          evt.preventDefault();
+          if (editorRef.current) {
+            const editor = editorRef.current;
+
+            editor.update(() => {
+              $convertFromMarkdownString(`# New Markdown`, TRANSFORMERS);
+            });
+          }
+        }}
+      >
+        Insert Markdown
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={(evt) => {
+          evt.preventDefault();
+          setShowTreeView((prevState) => !prevState);
+        }}
+      >
+        Hide Debug View
+      </Button>
       {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
       <div
       // className={`editor-container ${showTreeView ? "tree-view" : ""} ${
@@ -146,67 +175,83 @@ export function LexicalEditor() {
       // }`}
       >
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
-        <LexicalComposer initialConfig={initialConfig}>
-          <SharedHistoryContext>
-            <TableContext>
-              <SharedAutocompleteContext>
-                {isRichText && (
-                  <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-                )}
-                <div
-                  className={`editor-container ${
-                    showTreeView ? "tree-view" : ""
-                  } ${!isRichText ? "plain-text" : ""}`}
-                >
-                  <div className="editor-inner">
-                    <RichTextPlugin
-                      contentEditable={
-                        <div className="editor-scroller">
-                          <div className="editor" ref={editorRef}>
-                            <ContentEditable
-                              className="ContentEditable__root"
-                              aria-placeholder={placeholder}
-                              placeholder={placeholder}
-                            />
-                          </div>
+        {/* <LexicalComposer initialConfig={initialConfig}> */}
+        <SharedHistoryContext>
+          <TableContext>
+            <SharedAutocompleteContext>
+              {isRichText && (
+                <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+              )}
+              <div
+                className={`editor-container ${
+                  showTreeView ? "tree-view" : ""
+                } ${!isRichText ? "plain-text" : ""}`}
+              >
+                <div className="editor-inner">
+                  <RichTextPlugin
+                    contentEditable={
+                      <div className="editor-scroller">
+                        <div className="editor">
+                          <ContentEditable
+                            className="ContentEditable__root"
+                            aria-placeholder={placeholder}
+                            placeholder={placeholder}
+                          />
                         </div>
-                      }
-                      ErrorBoundary={LexicalErrorBoundary}
-                    />
-                    <HistoryPlugin />
-                    <AutoFocusPlugin />
-                    <TreeViewPlugin />
-                    <LinkPlugin />
-                    <ListPlugin />
-                    <CheckListPlugin />
-                    <TablePlugin />
-                    <TabIndentationPlugin />
-                    <AutoLinkPlugin />
-                    <ClearEditorPlugin />
-                    <MarkdownShortcutPlugin />
-                    <EditorRefPlugin editorRef={editorRef} />
-                    {/* <MyOnChangePlugin onChange={onChange} /> */}
-                  </div>
-                  {(isCharLimit || isCharLimitUtf8) && (
-                    <CharacterLimitPlugin
-                      charset={isCharLimit ? "UTF-16" : "UTF-8"}
-                      maxLength={5}
-                    />
-                  )}
-                  {isAutocomplete && <AutocompletePlugin />}
-                  <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
-                  {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-                  <ActionsPlugin
-                    isRichText={isRichText}
-                    shouldPreserveNewLinesInMarkdown={
-                      shouldPreserveNewLinesInMarkdown
+                      </div>
                     }
+                    ErrorBoundary={LexicalErrorBoundary}
                   />
+                  <HistoryPlugin />
+                  <AutoFocusPlugin />
+                  {/* <TreeViewPlugin /> */}
+
+                  {showTreeView && <TreeViewPlugin />}
+                  <TablePlugin
+                    hasCellMerge={tableCellMerge}
+                    hasCellBackgroundColor={tableCellBackgroundColor}
+                  />
+                  <TableCellResizer />
+                  <TableHoverActionsPlugin />
+                  <ImagesPlugin />
+                  <InlineImagePlugin />
+                  <LinkPlugin />
+                  <PollPlugin />
+                  <TwitterPlugin />
+                  <YouTubePlugin />
+                  <FigmaPlugin />
+                  <ClickableLinkPlugin disabled={isEditable} />
+                  <HorizontalRulePlugin />
+                  <EquationsPlugin />
+                  <ExcalidrawPlugin />
+                  <TabFocusPlugin />
+                  <TabIndentationPlugin />
+                  <AutoLinkPlugin />
+                  <ClearEditorPlugin />
+                  <MarkdownShortcutPlugin />
+                  <EditorRefPlugin editorRef={editorRef} />
+                  {/* <MyOnChangePlugin onChange={onChange} /> */}
                 </div>
-              </SharedAutocompleteContext>
-            </TableContext>
-          </SharedHistoryContext>
-        </LexicalComposer>
+                {(isCharLimit || isCharLimitUtf8) && (
+                  <CharacterLimitPlugin
+                    charset={isCharLimit ? "UTF-16" : "UTF-8"}
+                    maxLength={5}
+                  />
+                )}
+                {isAutocomplete && <AutocompletePlugin />}
+                <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
+                {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
+                <ActionsPlugin
+                  isRichText={isRichText}
+                  shouldPreserveNewLinesInMarkdown={
+                    shouldPreserveNewLinesInMarkdown
+                  }
+                />
+              </div>
+            </SharedAutocompleteContext>
+          </TableContext>
+        </SharedHistoryContext>
+        {/* </LexicalComposer> */}
       </div>
     </div>
   );

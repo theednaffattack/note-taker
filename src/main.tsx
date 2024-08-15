@@ -16,9 +16,26 @@ import ErrorPage from "./error-page.tsx";
 import "./index.css";
 import { Ocr } from "./ocr.tsx";
 import Root from "./routes/root.tsx";
-import { LexicalEditor } from "./lexical-editor.tsx";
+import { LexicalEditor, nodes } from "./lexical-editor.tsx";
 import { FlashMessageContext } from "./context/flash-message-context.tsx";
 import { SettingsContext } from "./context/settings-context.tsx";
+import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import theme from "./themes/playground-editor-theme.tsx";
+
+function onError(err: unknown) {
+  console.error(err);
+}
+
+const markdown = `# Hello World!\n\nEddie's first test!`;
+
+const initialConfig = {
+  editorState: () => $convertFromMarkdownString(markdown, TRANSFORMERS),
+  namespace: "Note Taker",
+  theme,
+  onError,
+  nodes: [...nodes],
+};
 
 const router = createBrowserRouter([
   {
@@ -41,11 +58,13 @@ const router = createBrowserRouter([
       {
         path: "/lexical",
         element: (
-          <SettingsContext>
-            <FlashMessageContext>
-              <LexicalEditor />
-            </FlashMessageContext>
-          </SettingsContext>
+          <LexicalComposer initialConfig={initialConfig}>
+            <SettingsContext>
+              <FlashMessageContext>
+                <LexicalEditor />
+              </FlashMessageContext>
+            </SettingsContext>
+          </LexicalComposer>
         ),
       },
     ],
