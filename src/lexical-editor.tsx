@@ -61,7 +61,11 @@ import { CollapsibleContainerNode } from "./plugins/collapsible-plugin/collapsib
 import { CollapsibleContentNode } from "./plugins/collapsible-plugin/collapsible-content-node.ts";
 import { CollapsibleTitleNode } from "./plugins/collapsible-plugin/collapsible-title-node.ts";
 
-import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
+import {
+  $convertFromMarkdownString,
+  $convertToMarkdownString,
+  TRANSFORMERS,
+} from "@lexical/markdown";
 import { CharacterLimitPlugin } from "@lexical/react/LexicalCharacterLimitPlugin";
 import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
@@ -86,6 +90,8 @@ import TableCellResizer from "./plugins/TableCellResizer/index.tsx";
 import TableHoverActionsPlugin from "./plugins/TableHoverActionsPlugin/index.tsx";
 import TwitterPlugin from "./plugins/TwitterPlugin/index.ts";
 import YouTubePlugin from "./plugins/YouTubePlugin/index.ts";
+import { saveMarkdownHandler } from "./save-markdown-handler.ts";
+import { promiser } from "./utils/promiser";
 
 const placeholder = "Enter some rich text...";
 
@@ -136,7 +142,38 @@ export function LexicalEditor() {
         Lexical Editor
       </h1>
 
-      <Button type="button" variant="outline">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={async (evt) => {
+          evt.preventDefault();
+          const editor = editorRef.current;
+          // Make sure we have a reference to the target element
+          if (!editor) {
+            throw Error("EditorState instance is missing!");
+          }
+
+          let markdown: string = "";
+          editor.read(() => {
+            markdown = $convertToMarkdownString(TRANSFORMERS);
+            console.log("VIEW MARKDOWN", markdown);
+          });
+          const [data, dataErr] = await promiser(
+            saveMarkdownHandler({
+              body: markdown,
+              title: "test test",
+              slug: "test-test",
+            })
+          );
+          if (!data) {
+            if (dataErr) {
+              throw dataErr;
+            }
+            throw "Data is missing, error should have fired!";
+          }
+          console.log("VIEW SAVED DATA", data);
+        }}
+      >
         Save Markdown
       </Button>
       <Button type="button" variant="outline">
