@@ -27,7 +27,7 @@ import { useRef } from "react";
 import fm from "front-matter";
 import slugify from "slugify";
 
-import { AlertProps } from "./alert";
+// import { AlertProps } from "./alert";
 import { imageUploadHandler } from "./image-upload-handler";
 import { saveMarkdownHandler } from "./save-markdown-handler";
 
@@ -68,13 +68,13 @@ export function Editor() {
           let title;
           // Make sure the title property is present
           if (Object.keys(parsedContent.attributes).length === 0) {
-            const missingTitleAlert: AlertProps = {
-              id: "alert-" + Date.now(),
-              message: "Please add title to post.",
-              severity: "warning",
-              timeout: 2000,
-              handleDismiss: null,
-            };
+            // const missingTitleAlert: AlertProps = {
+            //   id: "alert-" + Date.now(),
+            //   message: "Please add title to post.",
+            //   severity: "warning",
+            //   timeout: 2000,
+            //   handleDismiss: null,
+            // };
             // setAlerts((prevState) => [...prevState, missingTitleAlert]);
           } else {
             title = parsedContent.attributes.title;
