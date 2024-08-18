@@ -27,6 +27,7 @@
     "@lexical/utils": "^0.17.0",
     "@lexical/yjs": "^0.17.0",
     "@mdxeditor/editor": "^3.10.1",
+    "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-slot": "^1.1.0",
     "axios": "^1.7.3",
     "body-parser": "^1.20.2",
