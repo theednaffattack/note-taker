@@ -61,22 +61,17 @@ import { CollapsibleContainerNode } from "./plugins/collapsible-plugin/collapsib
 import { CollapsibleContentNode } from "./plugins/collapsible-plugin/collapsible-content-node.ts";
 import { CollapsibleTitleNode } from "./plugins/collapsible-plugin/collapsible-title-node.ts";
 
-import {
-  $convertFromMarkdownString,
-  $convertToMarkdownString,
-  TRANSFORMERS,
-} from "@lexical/markdown";
 import { CharacterLimitPlugin } from "@lexical/react/LexicalCharacterLimitPlugin";
 import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
-import { Button } from "./components/ui/button.tsx";
 import { useSettings } from "./context/settings-context.tsx";
 import { SharedAutocompleteContext } from "./context/shared-auto-complete.tsx";
 import {
   SharedHistoryContext,
   useSharedHistoryContext,
 } from "./context/shared-history-context.tsx";
+import { ControlButtons } from "./control-buttons";
 import { ImageNode } from "./nodes/ImageNode.tsx";
 import EquationsPlugin from "./plugins/EquationsPlugin/index.tsx";
 import ExcalidrawPlugin from "./plugins/ExcalidrawPlugin/index.ts";
@@ -90,8 +85,7 @@ import TableCellResizer from "./plugins/TableCellResizer/index.tsx";
 import TableHoverActionsPlugin from "./plugins/TableHoverActionsPlugin/index.tsx";
 import TwitterPlugin from "./plugins/TwitterPlugin/index.ts";
 import YouTubePlugin from "./plugins/YouTubePlugin/index.ts";
-import { saveMarkdownHandler } from "./save-markdown-handler.ts";
-import { promiser } from "./utils/promiser";
+import { FileDrawer } from "./file-drawer.tsx";
 
 const placeholder = "Enter some rich text...";
 
@@ -130,6 +124,8 @@ export function LexicalEditor() {
 
   const [showTreeView, setShowTreeView] = useState(true);
 
+  const [listOfPosts, setlistOfPosts] = useState<string[]>([]);
+
   // function onChange(editorState: EditorState) {
   //   // Call toJSON on the EditorState object, which produces a serialization safe string
   //   const editorStateJSON = editorState.toJSON();
@@ -142,69 +138,11 @@ export function LexicalEditor() {
         Lexical Editor
       </h1>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={async (evt) => {
-          evt.preventDefault();
-          const editor = editorRef.current;
-          // Make sure we have a reference to the target element
-          if (!editor) {
-            throw Error("EditorState instance is missing!");
-          }
-
-          let markdown: string = "";
-          editor.read(() => {
-            markdown = $convertToMarkdownString(TRANSFORMERS);
-            console.log("VIEW MARKDOWN", markdown);
-          });
-          const [data, dataErr] = await promiser(
-            saveMarkdownHandler({
-              body: markdown,
-              title: "test test",
-              slug: "test-test",
-            })
-          );
-          if (!data) {
-            if (dataErr) {
-              throw dataErr;
-            }
-            throw "Data is missing, error should have fired!";
-          }
-          console.log("VIEW SAVED DATA", data);
-        }}
-      >
-        Save Markdown
-      </Button>
-      <Button type="button" variant="outline">
-        Load Markdown
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={(evt) => {
-          evt.preventDefault();
-          if (editorRef.current) {
-            const editor = editorRef.current;
-
-            editor.update(() => {
-              $convertFromMarkdownString(`# New Markdown`, TRANSFORMERS);
-            });
-          }
-        }}
-      >
-        Insert Markdown
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={(evt) => {
-          evt.preventDefault();
-          setShowTreeView((prevState) => !prevState);
-        }}
-      >
-        Hide Debug View
-      </Button>
+      <ControlButtons
+        editorRef={editorRef}
+        setShowTreeView={setShowTreeView}
+        setListOfPosts={setlistOfPosts}
+      />
       {/* {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />} */}
       <div
       // className={`editor-container ${showTreeView ? "tree-view" : ""} ${
@@ -242,6 +180,8 @@ export function LexicalEditor() {
                   <HistoryPlugin />
                   <AutoFocusPlugin />
                   {/* <TreeViewPlugin /> */}
+                  <div>file drawer</div>
+                  <FileDrawer editorRef={editorRef} listOfPosts={listOfPosts} />
 
                   {showTreeView && <TreeViewPlugin />}
                   <TablePlugin
