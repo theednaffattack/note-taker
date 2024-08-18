@@ -37,7 +37,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import useModal from "../../hooks/use-modal";
 import LinkPlugin from "../../plugins/LinkPlugin";
 import Button from "../../ui/button";
-import ContentEditable from "../../ui/content-editable";
+import { LexicalContentEditable as ContentEditable } from "../../ui/content-editable";
 import { DialogActions } from "../../ui/dialog";
 import Select from "../../ui/select";
 import TextInput from "../../ui/text-input";

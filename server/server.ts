@@ -56,6 +56,19 @@ app.post("/uploads/new", upload.single("image"), async (req, res) => {
   }
 });
 
+app.post("/get-single-post", upload.none(), async (req, res) => {
+  let filename = req.body.filename;
+  let filePath = path.join("server", "posts", filename);
+  const [file, fileErr] = await promiser(fs.readFile(filePath, "utf8"));
+  if (!file) {
+    if (fileErr) {
+      throw fileErr;
+    }
+    throw Error("Error retrieving file data");
+  }
+  res.json(file);
+});
+
 app.post("/save-post", upload.none(), async (req, res) => {
   const filenameDelimiter = "_";
   let filename =
@@ -90,6 +103,19 @@ app.post("/save-post", upload.none(), async (req, res) => {
       url: path.join("/posts", filename + fileSuffix),
     });
   }
+});
+
+app.get("/get-posts", async (req, res) => {
+  const filePath = path.join("server", "posts");
+  const [fileList, fileListErr] = await promiser(fs.readdir(filePath));
+  if (!fileList) {
+    if (fileListErr) {
+      throw fileListErr;
+    }
+    throw Error("File list is null! An error has occurred.");
+  }
+
+  res.json(fileList);
 });
 
 app.get("/products", (req, res) => {
